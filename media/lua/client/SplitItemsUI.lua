@@ -49,8 +49,7 @@ function useSplitItemsUI:initialise()
 
     self.containers = {}
 
-    -- 데이터 가공
-    local containers = useSplitItemsUI:getContainers(self.player)
+    local containers = useSplitItemsUI:getContainers(self.player) -- 데이터 가공
     for i = 1, containers:size() do
         local data = containers:get(i - 1)
         local name = data.name
@@ -74,7 +73,7 @@ function useSplitItemsUI:initialise()
     self:addChild(self.closeButton)
 end
 
-function useSplitItemsUI:onMouseDown(button)
+function useSplitItemsUI:onMouseDown(button) -- 버튼을 누르면 실행
     if (button.internal == "SPLIT" and button.parent.comboBox.selected ~= 1) then
         for i = 1, button.parent.sliderPanel.currentValue do
             ISTimedActionQueue.add(ISInventoryTransferAction:new(self.player, self.items[i], self.items[i]:getContainer(), self.containers[button.parent.comboBox.selected - 1]))
@@ -87,13 +86,13 @@ function useSplitItemsUI:onMouseDown(button)
     end
 end
 
-function useSplitItemsUI:onSliderChange(slider)
+function useSplitItemsUI:onSliderChange(slider) -- 슬라이더가 움직이면 실행
     if (self.entryText ~= nil) then
         self.entryText:setText(tostring(slider))
     end
 end
 
-function ISTextEntryBox:onCommandEntered()
+function ISTextEntryBox:onCommandEntered() -- 텍스트 박스에 입력후 엔터키를 누르면 실행
     if (self.internal == "ITEM_COUNT") then
         if (tonumber(self:getText()) <= #self.parent.items) then
             self.parent.sliderPanel:setCurrentValue(tonumber(self:getText()))
@@ -106,8 +105,7 @@ function ISTextEntryBox:onCommandEntered()
     end
 end
 
--- ISIventoryPaneContextMenu.lua 에서 가져옴
-function useSplitItemsUI:getContainers(character)
+function useSplitItemsUI:getContainers(character) -- ISIventoryPaneContextMenu.lua 에서 가져옴
     local containerList = ArrayList.new();
     for _, v in ipairs(getPlayerInventory(character:getPlayerNum()).inventoryPane.inventoryPage.backpacks) do
         containerList:add(v);
@@ -118,33 +116,9 @@ function useSplitItemsUI:getContainers(character)
     return containerList;
 end
 
--- 플레이어가 움직이면 ComboBox 업데이트
-function useSplitItemsUI:update()
+function useSplitItemsUI:update() -- 플레이어가 움직이면 ComboBox 업데이트
     ISCollapsableWindow.update(self)
     if (self:getIsVisible() and self.player:getCurrentSquare() ~= self.lastSquare) then
         self:close()
     end
-
-    --if (self:getIsVisible() and self.player:getCurrentSquare() ~= self.lastSquare) then
-    --    -- comboBox 1번 인덱스 제외 모두 삭제
-    --    for i = 1, #self.containers do
-    --        self.comboBox:removeChild(self.comboBox.options[i + 1])
-    --    end
-    --
-    --    self.containers = {}
-    --
-    --    -- 데이터 가공
-    --    local containers = useSplitItemsUI:getContainers(self.player)
-    --    for i = 1, containers:size() do
-    --        local data = containers:get(i - 1)
-    --        local name = data.name
-    --        local container = data.inventory
-    --        if (not container:contains(self.items[1]) and container:getType() ~= "KeyRing") then
-    --            self.comboBox:addOption(name)
-    --            table.insert(self.containers, container)
-    --        end
-    --    end
-    --
-    --    self.lastSquare = self.player:getCurrentSquare()
-    --end
 end
