@@ -1,5 +1,33 @@
 useSplitItemsUI = ISCollapsableWindow:derive("SplitItemsUI")
 
+function useSplitItemsUI.getContainers(character) -- ISIventoryPaneContextMenu.lua 에서 가져옴
+    local containerList = ArrayList.new();
+    for _, v in ipairs(getPlayerInventory(character:getPlayerNum()).inventoryPane.inventoryPage.backpacks) do
+        containerList:add(v);
+    end
+    for _, v in ipairs(getPlayerLoot(character:getPlayerNum()).inventoryPane.inventoryPage.backpacks) do
+        containerList:add(v);
+    end
+    return containerList;
+end
+
+function useSplitItemsUI.addComboBoxOption(self) -- ComboBox에 옵션 추가
+    self.comboBox:addOption(getText("UI_SplitItems_Select_Inventory"))
+
+    self.containers = {}
+
+    local containers = useSplitItemsUI.getContainers(self.player) -- 데이터 가공
+    for i = 1, containers:size() do
+        local data = containers:get(i - 1)
+        local name = data.name
+        local container = data.inventory
+        if (not container:contains(self.items[1]) and container:getType() ~= "KeyRing") then
+            self.comboBox:addOption(name)
+            table.insert(self.containers, container)
+        end
+    end
+end
+
 function useSplitItemsUI:new(x, y, width, height, player, items)
     local o = {}
     o = ISCollapsableWindow:new(x, y, width, height)
@@ -11,13 +39,14 @@ function useSplitItemsUI:new(x, y, width, height, player, items)
     o.player = player
     o.items = items
     o.lastSquare = player:getCurrentSquare()
+    o.itemCount = #items
 
     return o
 end
 
 function useSplitItemsUI:prerender()
     ISCollapsableWindow.prerender(self)
-    local text = getText("UI_SplitItems_Text", self.items[1]:getDisplayName(), self.sliderPanel.currentValue, #self.items)
+    local text = getText("UI_SplitItems_Text", self.items[1]:getDisplayName(), self.sliderPanel.currentValue, self.itemCount)
     self:drawText(text, 100, 30, 1, 1, 1, 1, UIFont.Small)
 end
 
@@ -25,14 +54,14 @@ function useSplitItemsUI:initialise()
     ISCollapsableWindow.initialise(self)
 
     self.sliderPanel = ISSliderPanel:new(10, 60, 220, 30, self, useSplitItemsUI.onSliderChange)
-    self.sliderPanel:setValues(1, #self.items, 1, 0)
-    self.sliderPanel:setCurrentValue(#self.items)
+    self.sliderPanel:setValues(1, self.itemCount, 1, 0)
+    self.sliderPanel:setCurrentValue(self.itemCount)
     self.sliderPanel:initialise()
     self.sliderPanel:instantiate()
     self.sliderPanel.doToolTip = false
     self:addChild(self.sliderPanel)
 
-    self.entryText = ISTextEntryBox:new(tostring(#self.items), 240, 60, 50, 30)
+    self.entryText = ISTextEntryBox:new(tostring(self.itemCount), 240, 60, 50, 30)
     self.entryText.internal = "ITEM_COUNT"
     self.entryText:initialise()
     self.entryText:instantiate()
@@ -45,20 +74,7 @@ function useSplitItemsUI:initialise()
     self.comboBox:instantiate()
     self:addChild(self.comboBox)
 
-    self.comboBox:addOption(getText("UI_SplitItems_Select_Inventory"))
-
-    self.containers = {}
-
-    local containers = useSplitItemsUI:getContainers(self.player) -- 데이터 가공
-    for i = 1, containers:size() do
-        local data = containers:get(i - 1)
-        local name = data.name
-        local container = data.inventory
-        if (not container:contains(self.items[1]) and container:getType() ~= "KeyRing") then
-            self.comboBox:addOption(name)
-            table.insert(self.containers, container)
-        end
-    end
+    useSplitItemsUI.addComboBoxOption(self)
 
     self.splitButton = ISButton:new(10, 140, 135, 30, getText("UI_SplitItems_Split"), self, useSplitItemsUI.onMouseDown)
     self.splitButton.internal = "SPLIT"
@@ -105,20 +121,11 @@ function ISTextEntryBox:onCommandEntered() -- 텍스트 박스에 입력후 엔�
     end
 end
 
-function useSplitItemsUI:getContainers(character) -- ISIventoryPaneContextMenu.lua 에서 가져옴
-    local containerList = ArrayList.new();
-    for _, v in ipairs(getPlayerInventory(character:getPlayerNum()).inventoryPane.inventoryPage.backpacks) do
-        containerList:add(v);
-    end
-    for _, v in ipairs(getPlayerLoot(character:getPlayerNum()).inventoryPane.inventoryPage.backpacks) do
-        containerList:add(v);
-    end
-    return containerList;
-end
-
 function useSplitItemsUI:update() -- 플레이어가 움직이면 ComboBox 업데이트
     ISCollapsableWindow.update(self)
     if (self:getIsVisible() and self.player:getCurrentSquare() ~= self.lastSquare) then
-        self:close()
+        self.lastSquare = self.player:getCurrentSquare()
+        self.comboBox:clear()
+        useSplitItemsUI.addComboBoxOption(self)
     end
 end
