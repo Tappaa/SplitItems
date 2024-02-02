@@ -1,14 +1,14 @@
 useSplitItemsUI = ISCollapsableWindow:derive("SplitItemsUI")
 
 function useSplitItemsUI.getContainers(character) -- ISIventoryPaneContextMenu.lua 에서 가져옴
-    local containerList = ArrayList.new();
+    local containerTable = {}
     for _, v in ipairs(getPlayerInventory(character:getPlayerNum()).inventoryPane.inventoryPage.backpacks) do
-        containerList:add(v);
+        table.insert(containerTable, v)
     end
     for _, v in ipairs(getPlayerLoot(character:getPlayerNum()).inventoryPane.inventoryPage.backpacks) do
-        containerList:add(v);
+        table.insert(containerTable, v)
     end
-    return containerList;
+    return containerTable
 end
 
 function useSplitItemsUI.addComboBoxOption(self) -- ComboBox에 옵션 추가
@@ -17,8 +17,8 @@ function useSplitItemsUI.addComboBoxOption(self) -- ComboBox에 옵션 추가
     self.containers = {}
 
     local containers = useSplitItemsUI.getContainers(self.player) -- 데이터 가공
-    for i = 1, containers:size() do
-        local data = containers:get(i - 1)
+    for _, v in ipairs(containers) do
+        local data = v
         local name = data.name
         local container = data.inventory
         if (not container:contains(self.items[1]) and container:getType() ~= "KeyRing") then
@@ -26,6 +26,17 @@ function useSplitItemsUI.addComboBoxOption(self) -- ComboBox에 옵션 추가
             table.insert(self.containers, container)
         end
     end
+end
+
+function useSplitItemsUI.canTransferItems(character, container) -- 아이템을 옮길 수 있는지 확인
+    local playerContainers = useSplitItemsUI.getContainers(character)
+
+    for _, v in ipairs(playerContainers) do
+        if (v.inventory == container) then
+            return true
+        end
+    end
+    return false
 end
 
 function useSplitItemsUI:new(x, y, width, height, player, items)
@@ -91,8 +102,12 @@ end
 
 function useSplitItemsUI:onMouseDown(button) -- 버튼을 누르면 실행
     if (button.internal == "SPLIT" and button.parent.comboBox.selected ~= 1) then
-        for i = 1, button.parent.sliderPanel.currentValue do
-            ISTimedActionQueue.add(ISInventoryTransferAction:new(self.player, self.items[i], self.items[i]:getContainer(), self.containers[button.parent.comboBox.selected - 1]))
+        local selectedContainer = self.containers[button.parent.comboBox.selected - 1]
+
+        if (useSplitItemsUI.canTransferItems(self.player, self.items[1]:getContainer())) then
+            for i = 1, button.parent.sliderPanel.currentValue do
+                ISTimedActionQueue.add(ISInventoryTransferAction:new(self.player, self.items[i], self.items[i]:getContainer(), selectedContainer))
+            end
         end
         self:close()
     elseif (button.internal == "CLOSE") then
