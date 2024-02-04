@@ -26,15 +26,4 @@ function useSplitItems.createSplitItemsUI(player, items)
     return ui
 end
 
-function useSplitItems.deepClone(original)
-    local clone = {}
-    for k, v in pairs(original) do
-        if type(v) == "table" then
-            v = deepClone(v)
-        end
-        clone[k] = v
-    end
-    return clone
-end
-
 Events.OnFillInventoryObjectContextMenu.Add(useSplitItems.contextMenu)
