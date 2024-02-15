@@ -15,6 +15,7 @@ function useSplitItemsUI.addComboBoxOption(self) -- ComboBox에 옵션 추가
     self.comboBox:addOption(getText("UI_SplitItems_Select_Inventory"))
 
     self.containers = {}
+    tempContainer = {}
 
     local containers = useSplitItemsUI.getContainers(self.player) -- 데이터 가공
     for _, v in ipairs(containers) do
@@ -22,9 +23,21 @@ function useSplitItemsUI.addComboBoxOption(self) -- ComboBox에 옵션 추가
         local name = data.name
         local container = data.inventory
         if (not container:contains(self.items[1]) and container:getType() ~= "KeyRing") then
-            self.comboBox:addOption(name)
-            table.insert(self.containers, container)
+            table.insert(tempContainer, {["name"] = name, ["inventory"] = container, ["type"] = container:getType()})
         end
+    end
+
+    if (SplitItemsConfig.sortContainerByName) then
+        table.sort(tempContainer, function(a, b)
+            if (not ((a.type == "none" or b.type == "none") or (a.type == "floor" or b.type == "floor"))) then
+                return a.name < b.name
+            end
+        end)
+    end
+
+    for _, v in ipairs(tempContainer) do
+        self.comboBox:addOption(v.name)
+        table.insert(self.containers, v)
     end
 end
 
@@ -102,7 +115,7 @@ end
 
 function useSplitItemsUI:onMouseDown(button) -- 버튼을 누르면 실행
     if (button.internal == "SPLIT" and button.parent.comboBox.selected ~= 1) then
-        local selectedContainer = self.containers[button.parent.comboBox.selected - 1]
+        local selectedContainer = self.containers[button.parent.comboBox.selected - 1].inventory
 
         if (useSplitItemsUI.canTransferItems(self.player, self.items[1]:getContainer())) then
             for i = 1, button.parent.sliderPanel.currentValue do
