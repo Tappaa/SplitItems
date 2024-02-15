@@ -131,8 +131,6 @@ function ISTextEntryBox:onCommandEntered() -- 텍스트 박스에 입력후 엔�
             self:setText(tostring(#self.parent.items))
             self.parent.sliderPanel:setCurrentValue(tonumber(self:getText()))
         end
-    else
-        ISCollapsableWindow.onCommandEntered(self)
     end
 end
 
