@@ -1,0 +1,3 @@
+SplitItemsConfig = {
+    sortContainerByName = true,
+}
