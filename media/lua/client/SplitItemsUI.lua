@@ -28,16 +28,30 @@ function useSplitItemsUI.addComboBoxOption(self) -- ComboBox에 옵션 추가
     end
 
     if (SplitItemsConfig.sortContainerByName) then
-        table.sort(tempContainer, function(a, b)
-            if (not ((a.type == "none" or b.type == "none") or (a.type == "floor" or b.type == "floor"))) then
-                return a.name < b.name
-            end
-        end)
+        local jump = 0
+
+        if (tempContainer[1].type == "none") then -- 플레이어 메인 인벤토리
+            table.insert(self.containers, tempContainer[1])
+            table.remove(tempContainer, 1)
+            jump = 1
+        end
+
+        if (tempContainer[#tempContainer].type == "floor") then -- 바닥 인벤토리
+            table.insert(self.containers, tempContainer[#tempContainer])
+            table.remove(tempContainer, #tempContainer)
+        end
+
+        table.sort(tempContainer, function(a, b) return a.name < b.name end) -- 이름을 A-Z 순으로 정렬
+
+        for i, v in ipairs(tempContainer) do
+            table.insert(self.containers, i + jump, v)
+        end
+    else
+        self.containers = tempContainer
     end
 
-    for _, v in ipairs(tempContainer) do
+    for _, v in ipairs(self.containers) do
         self.comboBox:addOption(v.name)
-        table.insert(self.containers, v)
     end
 end
 
