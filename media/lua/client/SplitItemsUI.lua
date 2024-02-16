@@ -15,6 +15,7 @@ function useSplitItemsUI.addComboBoxOption(self) -- ComboBox에 옵션 추가
     self.comboBox:addOption(getText("UI_SplitItems_Select_Inventory"))
 
     self.containers = {}
+    tempContainer = {}
 
     local containers = useSplitItemsUI.getContainers(self.player) -- 데이터 가공
     for _, v in ipairs(containers) do
@@ -22,9 +23,35 @@ function useSplitItemsUI.addComboBoxOption(self) -- ComboBox에 옵션 추가
         local name = data.name
         local container = data.inventory
         if (not container:contains(self.items[1]) and container:getType() ~= "KeyRing") then
-            self.comboBox:addOption(name)
-            table.insert(self.containers, container)
+            table.insert(tempContainer, {["name"] = name, ["inventory"] = container, ["type"] = container:getType()})
         end
+    end
+
+    if (SplitItemsConfig.sortContainerByName) then
+        local jump = 0
+
+        if (tempContainer[1].type == "none") then -- 플레이어 메인 인벤토리
+            table.insert(self.containers, tempContainer[1])
+            table.remove(tempContainer, 1)
+            jump = 1
+        end
+
+        if (tempContainer[#tempContainer].type == "floor") then -- 바닥 인벤토리
+            table.insert(self.containers, tempContainer[#tempContainer])
+            table.remove(tempContainer, #tempContainer)
+        end
+
+        table.sort(tempContainer, function(a, b) return a.name < b.name end) -- 이름을 A-Z 순으로 정렬
+
+        for i, v in ipairs(tempContainer) do
+            table.insert(self.containers, i + jump, v)
+        end
+    else
+        self.containers = tempContainer
+    end
+
+    for _, v in ipairs(self.containers) do
+        self.comboBox:addOption(v.name)
     end
 end
 
@@ -57,7 +84,14 @@ end
 
 function useSplitItemsUI:prerender()
     ISCollapsableWindow.prerender(self)
-    local text = getText("UI_SplitItems_Text", self.items[1]:getDisplayName(), self.sliderPanel.currentValue, self.itemCount)
+    local itemWeight = 0
+    for i = 1, self.sliderPanel.currentValue do
+        itemWeight = itemWeight + self.items[i]:getActualWeight()
+    end
+
+    itemWeight = math.floor(itemWeight * 10 ^ (SplitItemsConfig.maxItemWeightDecimalPlaces)) / 10 ^ (SplitItemsConfig.maxItemWeightDecimalPlaces)
+
+    local text = getText("UI_SplitItems_Text", self.items[1]:getDisplayName(), self.sliderPanel.currentValue, self.itemCount, itemWeight)
     self:drawText(text, 100, 30, 1, 1, 1, 1, UIFont.Small)
 end
 
@@ -102,7 +136,7 @@ end
 
 function useSplitItemsUI:onMouseDown(button) -- 버튼을 누르면 실행
     if (button.internal == "SPLIT" and button.parent.comboBox.selected ~= 1) then
-        local selectedContainer = self.containers[button.parent.comboBox.selected - 1]
+        local selectedContainer = self.containers[button.parent.comboBox.selected - 1].inventory
 
         if (useSplitItemsUI.canTransferItems(self.player, self.items[1]:getContainer())) then
             for i = 1, button.parent.sliderPanel.currentValue do
@@ -131,8 +165,6 @@ function ISTextEntryBox:onCommandEntered() -- 텍스트 박스에 입력후 엔�
             self:setText(tostring(#self.parent.items))
             self.parent.sliderPanel:setCurrentValue(tonumber(self:getText()))
         end
-    else
-        ISCollapsableWindow.onCommandEntered(self)
     end
 end
 

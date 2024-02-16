@@ -1,7 +1,7 @@
 useSplitItems = {}
 
 function useSplitItems.contextMenu(player, context, items)
-    if (#items == 1 and not instanceof(items[1], "InventoryItem") and #items[1].items > 2) then -- 선택한 아이템의 타입이 한 개 이면서 모두 선택한 경우
+    if (#items == 1 and not instanceof(items[1], "InventoryItem")) then -- 선택한 아이템의 타입이 한 개 이면서 모두 선택한 경우
         local item = items[1].items[1] -- 첫 번째 아이템을 기준으로 처리
 
         local stackItems = {}
@@ -9,6 +9,10 @@ function useSplitItems.contextMenu(player, context, items)
 
         for i = 1, rawStackItems:size() do
             table.insert(stackItems, i, rawStackItems:get(i - 1))
+        end
+
+        if (#items[1].items <= 2 and #stackItems == 1) then -- 선택한 아이템의 개수가 2개 이하이면서 스택된 아이템이 1개인 경우
+            return
         end
 
         context:addOption(getText("ContextMenu_SplitItems"), player, useSplitItems.createSplitItemsUI, stackItems)
