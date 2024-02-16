@@ -84,7 +84,14 @@ end
 
 function useSplitItemsUI:prerender()
     ISCollapsableWindow.prerender(self)
-    local text = getText("UI_SplitItems_Text", self.items[1]:getDisplayName(), self.sliderPanel.currentValue, self.itemCount)
+    local itemWeight = 0
+    for i = 1, self.sliderPanel.currentValue do
+        itemWeight = itemWeight + self.items[i]:getActualWeight()
+    end
+
+    itemWeight = math.floor(itemWeight * 10 ^ (SplitItemsConfig.maxItemWeightDecimalPlaces)) / 10 ^ (SplitItemsConfig.maxItemWeightDecimalPlaces)
+
+    local text = getText("UI_SplitItems_Text", self.items[1]:getDisplayName(), self.sliderPanel.currentValue, self.itemCount, itemWeight)
     self:drawText(text, 100, 30, 1, 1, 1, 1, UIFont.Small)
 end
 

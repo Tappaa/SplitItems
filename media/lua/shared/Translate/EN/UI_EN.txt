@@ -2,7 +2,7 @@ UI_EN = {
     UI_SplitItems_Title = "Split: %1",
     UI_SplitItems_Split = "Split",
     UI_SplitItems_Cancel = "Cancel",
-    UI_SplitItems_Text = "%2 / %3",
+    UI_SplitItems_Text = "%2 / %3 (%4)",
     UI_SplitItems_entryText_Tooltip = "Press 'Enter' after entering the number of items to split.",
     UI_SplitItems_Select_Inventory = "Select the inventory you want to move.",
 }
