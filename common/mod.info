@@ -1,10 +1,7 @@
-name=Split Items
-poster=poster.png
-icon=icon.png
-id=SplitItems
+name=[B42] Split Items
+id=SplitItems_B42
 description=Split items in your inventory.
 modversion=0.0.5
 versionMin=42.00
-authors=Tappaa(Steam: IDK)
-url=https://github.com/Tappaa/SplitItems
-tags=QOL, Utils
+poster=poster.png
+icon=icon.png
