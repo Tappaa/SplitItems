@@ -74,4 +74,3 @@ end
 
 Events.OnFillInventoryObjectContextMenu.Add(useSplitItems.contextMenu)
 Events.OnGameStart.Add(useSplitItems.dragNDropSplit)
-Events.OnKeyPressed.Add(useSplitItems.onKeyPressed)

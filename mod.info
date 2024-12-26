@@ -1,9 +1,9 @@
-name=Split Items
+name=[B41] Split Items
 poster=poster.png
 icon=icon.png
 id=SplitItems
 description=Split items in your inventory.
-modversion=0.0.4
+modversion=0.0.6
 versionMin=41.78
 authors=Kill00(Steam: IDK)
 url=https://github.com/Kill00/SplitItems
