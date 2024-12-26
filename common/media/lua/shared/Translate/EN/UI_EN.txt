@@ -5,4 +5,13 @@ UI_EN = {
     UI_SplitItems_Text = "%2 / %3 (%4)",
     UI_SplitItems_entryText_Tooltip = "Press 'Enter' after entering the number of items to split.",
     UI_SplitItems_Select_Inventory = "Select the inventory you want to move.",
+    UI_options_SplitItems_Title = "Split Items",
+    UI_options_SplitItems_SortContainerByName = "Sort Container by Name",
+    UI_options_SplitItems_SortContainerByName_tooltip = "Set whether to sort the containers in alphabetical order.",
+    UI_options_SplitItems_MaxItemDecimalPlaces = "Max Item Decimal Places",
+    UI_options_SplitItems_MaxItemDecimalPlaces_tooltip = "Set the number of decimal places for the number representing the weight of the item.",
+    UI_options_SplitItems_IncludeWaringItemsInStack = "Include Waring Items In Stack",
+    UI_options_SplitItems_IncludeWaringItemsInStack_tooltip = "Set whether to include items you are wearing in your stack.",
+    UI_options_SplitItems_ShortCut = "Drag ShortCut",
+    UI_options_SplitItems_ShortCut_tooltip = "Set the drag shortcut.",
 }
