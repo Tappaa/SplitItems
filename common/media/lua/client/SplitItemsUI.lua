@@ -27,7 +27,7 @@ function useSplitItemsUI.addComboBoxOption(self) -- ComboBox에 옵션 추가
         end
     end
 
-    if (SplitItemsConfig.sortContainerByName) then
+    if (splitItemsModOption.sortContainerByName.value) then
         local jump = 0
 
         if (tempContainer[1].type == "none") then -- 플레이어 메인 인벤토리
@@ -66,7 +66,7 @@ function useSplitItemsUI.canTransferItems(character, container) -- 아이템을 
     return false
 end
 
-function useSplitItemsUI:new(x, y, width, height, player, items) -- UI 생성
+function useSplitItemsUI:new(x, y, width, height, player, items, container --[[= nil]]) -- UI 생성
     local o = {}
     o = ISCollapsableWindow:new(x, y, width, height)
     setmetatable(o, self)
@@ -78,6 +78,7 @@ function useSplitItemsUI:new(x, y, width, height, player, items) -- UI 생성
     o.items = items
     o.lastSquare = player:getCurrentSquare()
     o.itemCount = #items
+    o.container = container
 
     return o
 end
@@ -104,7 +105,7 @@ function useSplitItemsUI:prerender()
         end
     end
 
-    itemWeight = math.floor(itemWeight * 10 ^ (SplitItemsConfig.maxItemWeightDecimalPlaces) + 0.5) / 10 ^ (SplitItemsConfig.maxItemWeightDecimalPlaces)
+    itemWeight = math.ceil(itemWeight * 10 ^ (splitItemsModOption.maxItemWeightDecimalPlaces.value) - 0.5) / 10 ^ (splitItemsModOption.maxItemWeightDecimalPlaces.value)
 
     local text = getText("UI_SplitItems_Text", self.items[1]:getDisplayName(), self.sliderPanel.currentValue, self.itemCount, itemWeight)
     self:drawText(text, 100, 30, 1, 1, 1, 1, UIFont.Small)
@@ -135,6 +136,14 @@ function useSplitItemsUI:initialise()
     self:addChild(self.comboBox)
 
     useSplitItemsUI.addComboBoxOption(self)
+
+    if (self.container ~= nil) then
+        for i, v in ipairs(self.containers) do
+            if (v.inventory == self.container) then
+                self.comboBox.selected = i + 1
+            end
+        end
+    end
 
     self.splitButton = ISButton:new(10, 140, 135, 30, getText("UI_SplitItems_Split"), self, useSplitItemsUI.onMouseDown)
     self.splitButton.internal = "SPLIT"

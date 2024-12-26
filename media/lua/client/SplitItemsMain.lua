@@ -1,6 +1,6 @@
 useSplitItems = {}
 
-function useSplitItems.contextMenu(player, context, items)
+function useSplitItems.contextMenu(player, context, items) -- 컨텍스트 메뉴에 항목 추가
     if (#items == 1 and not instanceof(items[1], "InventoryItem")) then -- 선택한 아이템의 타입이 한 개 이면서 모두 선택한 경우
         local item = items[1].items[1] -- 첫 번째 아이템을 기준으로 처리
 
@@ -8,7 +8,11 @@ function useSplitItems.contextMenu(player, context, items)
         local rawStackItems = item:getContainer():getAllType(item:getType())
 
         for i = 1, rawStackItems:size() do
-            table.insert(stackItems, i, rawStackItems:get(i - 1))
+            if (not SplitItemsConfig.includeWearingItems and (rawStackItems:get(i - 1):isEquipped() or rawStackItems:get(i - 1):getAttachedSlot() ~= -1)) then -- 아이템을 착용중인지 확인
+                -- 착용중인 아이템은 제외
+            else
+                table.insert(stackItems, rawStackItems:get(i - 1))
+            end
         end
 
         if (#items[1].items <= 2 and #stackItems == 1) then -- 선택한 아이템의 개수가 2개 이하이면서 스택된 아이템이 1개인 경우
