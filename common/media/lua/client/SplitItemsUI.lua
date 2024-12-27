@@ -87,19 +87,20 @@ function useSplitItemsUI:prerender()
     ISCollapsableWindow.prerender(self)
     local itemWeight = 0
     for i = 1, self.sliderPanel.currentValue do
-        if (self.items[i]:getAmmoType() ~= nil and not self.items[i]:isEquipped() and self.items[i]:getAttachedSlot() == -1) then -- 탄약의 무게 계산
-            local ammoType = self.items[i]:getAmmoType()
-            local ammoCount = self.items[i]:getCurrentAmmoCount()
-            local ammoWeight = getScriptManager():FindItem(ammoType):getActualWeight()
-
-            itemWeight = itemWeight + (ammoWeight * ammoCount)
-        end
+        --if (self.items[i]:getAmmoType() ~= nil and not self.items[i]:isEquipped() and self.items[i]:getAttachedSlot() == -1) then -- 탄약의 무게 계산
+        --    local ammoType = self.items[i]:getAmmoType()
+        --    local ammoCount = self.items[i]:getCurrentAmmoCount()
+        --    local ammoWeight = getScriptManager():FindItem(ammoType):getActualWeight()
+        --
+        --    itemWeight = itemWeight + (ammoWeight * ammoCount)
+        --end
 
         if (self.items[i]:isEquipped()) then -- 아이템이 장착되어 있는 경우 무게 계산
             itemWeight = itemWeight + self.items[i]:getEquippedWeight()
-        else if (self.items[i]:getAttachedSlot() ~= -1) then -- 아이템이 장착되어 있는 경우 무게 계산
+        else if (self.items[i]:getAttachedSlot() ~= -1) then -- 아이템이 핫바에 장착되어 있는 경우 무게 계산
             itemWeight = itemWeight + self.items[i]:getHotbarEquippedWeight()
         else
+            itemWeight = itemWeight + self.items[i]:getContentsWeight()
             itemWeight = itemWeight + self.items[i]:getActualWeight()
         end
         end
