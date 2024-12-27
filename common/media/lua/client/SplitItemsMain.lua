@@ -17,7 +17,7 @@ function useSplitItems.contextMenu(player, context, items) -- 컨텍스트 메�
 
         local originItem = getScriptManager():FindItem(itemData:getType()) -- 아이템의 이름을 가져옴
 
-        if (originItem:getName():contains("Empty")) then -- 액체 컨테이너의 경우
+        if (originItem:getName():contains("Empty") or originItem:getName():contains("Bottle")) then -- 액체 컨테이너인 경우
             skipYStackItems = true
         end
 
@@ -27,11 +27,11 @@ function useSplitItems.contextMenu(player, context, items) -- 컨텍스트 메�
         itemData = items[1] -- 첫 번째 아이템을 기준으로 처리
 
         local originItem = getScriptManager():FindItem(itemData:getType()) -- 아이템의 이름을 가져옴
-        local isOriginItemFluid = originItem:getName():contains("Empty") -- 액체 컨테이너인지 확인
+        local isOriginItemFluid = originItem:getName():contains("Empty") or originItem:getName():contains("Bottle") -- 액체 컨테이너인지 확인
 
         for i = 1, #items do
             if (originItem:getDisplayName() ~= items[i]:getDisplayName()) then -- 아이템의 이름이 다른 경우
-                if (isOriginItemFluid and items[i]:getType():contains("Empty")) then -- 액체 컨테이너의 경우
+                if (isOriginItemFluid and items[i]:getType():contains("Empty") or items[i]:getType():contains("Bottle")) then
                     -- 아이템의 이름이 다르지만 액체 컨테이너인 경우
                     skipYStackItems = true
                 else
@@ -110,18 +110,19 @@ function useSplitItems.dragNDropSplit() -- 드래그 앤 드롭으로 아이템�
                 table.insert(itemTypes, queuedItems[i].type)
             end
 
-            local isSameItem = false
+            local isDifferentItem = false
             for i = 1, #itemTypes do
-                if (i ~= #itemTypes and itemTypes[i] ~= itemTypes[i + 1]) then
-                    isSameItem = true
-                    break
-                elseif (i == #itemTypes and itemTypes[i] ~= itemTypes[1]) then
-                    isSameItem = true
-                    break
+                if (itemTypes[1] ~= itemTypes[i]) then
+                    if (string.find(itemTypes[i], "Empty") ~= nil or string.find(itemTypes[i], "Bottle") ~= nil) then -- 액체 컨테이너인 경우
+                        -- 아이템의 이름이 다르지만 액체 컨테이너인 경우
+                    else
+                        isDifferentItem = true
+                        break
+                    end
                 end
             end
 
-            if (#xStackItems <= 1 or isSameItem) then -- 스택된 아이템이 아니거나 같은 아이템이 아닌 경우
+            if (#xStackItems <= 1 or isDifferentItem) then -- 스택된 아이템이 아니거나 같은 아이템이 아닌 경우
                 originalPerform(self)
                 return
             end
