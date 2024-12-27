@@ -182,6 +182,7 @@ function useSplitItemsUI:onSliderChange(slider) -- 슬라이더가 움직이면 
     end
 end
 
+local originalOnCommandEntered = ISTextEntryBox.onCommandEntered
 function ISTextEntryBox:onCommandEntered() -- 텍스트 박스에 입력후 엔터키를 누르면 실행
     if (self.internal == "ITEM_COUNT") then
         if (tonumber(self:getText()) <= #self.parent.items) then
@@ -190,6 +191,8 @@ function ISTextEntryBox:onCommandEntered() -- 텍스트 박스에 입력후 엔�
             self:setText(tostring(#self.parent.items))
             self.parent.sliderPanel:setCurrentValue(tonumber(self:getText()))
         end
+    else
+        originalOnCommandEntered(self)
     end
 end
 

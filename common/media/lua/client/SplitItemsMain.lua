@@ -86,8 +86,6 @@ function useSplitItems.contextMenu(player, context, items) -- 컨텍스트 메�
 end
 
 function useSplitItems.dragNDropSplit() -- 드래그 앤 드롭으로 아이템을 나누기
-    local transferredItem
-
     local originalPerform = ISInventoryTransferAction.perform
     function ISInventoryTransferAction:perform()
         local configKey = splitItemsModOption.keyBind.key
@@ -97,7 +95,6 @@ function useSplitItems.dragNDropSplit() -- 드래그 앤 드롭으로 아이템�
 
             local player = self.character
             local queuedItems = self.queueList
-            local srcContainer = self.srcContainer
             local destContainer = self.destContainer
 
             -- queuedItems에서 아이템정보를 가져옴
@@ -128,21 +125,10 @@ function useSplitItems.dragNDropSplit() -- 드래그 앤 드롭으로 아이템�
             end
 
             self:forceStop() -- ISInventoryTransferAction을 강제로 중지
-            ISTimedActionQueue.add(ISInventoryTransferAction:new(player, transferredItem, destContainer, srcContainer, 0))
             useSplitItems.createSplitItemsUI(player:getPlayerNum(), xStackItems, destContainer)
             return
         end
         originalPerform(self)
-    end
-
-    local originalStart = ISInventoryTransferAction.start
-    function ISInventoryTransferAction:start()
-        local configKey = splitItemsModOption.keyBind.key
-
-        if isKeyDown(configKey) then
-            transferredItem = self.item
-        end
-        originalStart(self)
     end
 
     local originalNew = ISInventoryTransferAction.new
@@ -152,7 +138,6 @@ function useSplitItems.dragNDropSplit() -- 드래그 앤 드롭으로 아이템�
         if isKeyDown(configKey) then
             local o = originalNew(self, character, item, srcContainer, destContainer, time)
             o.maxTime = 0
-            o.stopOnRun = false
             return o
         end
         return originalNew(self, character, item, srcContainer, destContainer, time)
