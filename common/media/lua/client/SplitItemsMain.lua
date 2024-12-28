@@ -12,6 +12,13 @@ function useSplitItems.contextMenu(player, context, items) -- 컨텍스트 메�
     local itemData
     local xStackItems = {}
     local skipYStackItems = false
+
+    local selectedContainer
+    if (splitItemsModOption.autoSelectContainer.value) then
+        local externalInventory = getPlayerLoot(player).inventoryPane.inventoryPage.backpacks
+        selectedContainer = externalInventory[1].parent.inventory
+    end
+
     if (#items == 1 and not instanceof(items[1], "InventoryItem")) then -- 선택한 아이템의 타입이 한 개 이면서 모두 선택한 경우
         itemData = items[1].items[1] -- 첫 번째 아이템을 기준으로 처리
 
@@ -82,7 +89,7 @@ function useSplitItems.contextMenu(player, context, items) -- 컨텍스트 메�
         stackItems = xStackItems
     end
 
-    context:addOption(getText("ContextMenu_SplitItems"), player, useSplitItems.createSplitItemsUI, stackItems)
+    context:addOption(getText("ContextMenu_SplitItems"), player, useSplitItems.createSplitItemsUI, stackItems, selectedContainer)
 end
 
 function useSplitItems.dragNDropSplit() -- 드래그 앤 드롭으로 아이템을 나누기

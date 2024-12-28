@@ -1,7 +1,7 @@
 name=[B42] Split Items
 id=SplitItems
 description=Split items in your inventory.
-modversion=0.0.7
+modversion=0.0.8
 versionMin=42.00
 poster=poster.png
 icon=icon.png
