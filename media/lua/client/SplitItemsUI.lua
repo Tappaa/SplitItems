@@ -89,7 +89,7 @@ function useSplitItemsUI:prerender()
         if (self.items[i]:getAmmoType() ~= nil and not self.items[i]:isEquipped() and self.items[i]:getAttachedSlot() == -1) then -- 탄약의 무게 계산
             local ammoType = self.items[i]:getAmmoType()
             local ammoCount = self.items[i]:getCurrentAmmoCount()
-            local ammoWeight = getScriptManager():FindItem(ammoType):getActualWeight()
+            local ammoWeight = ammoType:getActualWeight()
 
             itemWeight = itemWeight + (ammoWeight * ammoCount)
         end

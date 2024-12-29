@@ -12,25 +12,48 @@ function useSplitItems.contextMenu(player, context, items) -- 컨텍스트 메�
     local itemData
     local xStackItems = {}
     local skipYStackItems = false
-    if (#items == 1 and not instanceof(items[1], "InventoryItem")) then -- 선택한 아이템의 타입이 한 개 이면서 모두 선택한 경우
-        itemData = items[1].items[1] -- 첫 번째 아이템을 기준으로 처리
 
-        local originItem = getScriptManager():FindItem(itemData:getType()) -- 아이템의 이름을 가져옴
+    local selectedContainer
+    if (splitItemsModOption.autoSelectContainer.value) then
+        local externalInventory = getPlayerLoot(player).inventoryPane.inventoryPage.backpacks
+        selectedContainer = externalInventory[1].parent.inventory
+    end
 
-        if (originItem:getName():contains("Empty") or originItem:getName():contains("Bottle")) then -- 액체 컨테이너인 경우
-            skipYStackItems = true
+    if (#items == 1) then
+        -- 선택한 아이템의 타입이 한 개 이면서 모두 선택한 경우
+        if (not instanceof(items[1], "InventoryItem")) then
+            itemData = items[1].items[1] -- 첫 번째 아이템을 기준으로 처리
+
+            if (itemData:getName():contains("Empty") or itemData:getName():contains("Bottle")) then -- 액체 컨테이너인 경우
+                skipYStackItems = true
+            end
+
+            xStackItems = shallowCopy(items[1].items)
+            table.remove(xStackItems, 1) -- 첫 번째 아이템을 제외한 나머지 아이템들을 가져옴
+
+        -- 선택한 아이템의 타입이 한 개 이면서 스택이 안돼 있고 아이템이 여러개인 경우
+        else
+            itemData = items[1] -- 첫 번째 아이템을 기준으로 처리
+
+            if (itemData:getContainer():getAllType(itemData:getType()):size() == 1) then -- 컨테이너 내에 스택되지 않은 아이템이 1개인 경우
+                return
+            end
         end
 
-        xStackItems = shallowCopy(items[1].items)
-        table.remove(xStackItems, 1) -- 첫 번째 아이템을 제외한 나머지 아이템들을 가져옴
-    elseif (#items > 1 and instanceof(items[1], "InventoryItem")) then -- 선택한 아이템의 타입이 한 개 이면서 특정 개수만 선택한 경우
+    -- 아이템을 여러 개 선택한 경우
+    elseif (#items > 1) then
+        for _, v in ipairs(items) do
+            if (not instanceof(v, "InventoryItem")) then -- InventoryItem 타입이 아닌 경우
+                return
+            end
+        end
+
         itemData = items[1] -- 첫 번째 아이템을 기준으로 처리
 
-        local originItem = getScriptManager():FindItem(itemData:getType()) -- 아이템의 이름을 가져옴
-        local isOriginItemFluid = originItem:getName():contains("Empty") or originItem:getName():contains("Bottle") -- 액체 컨테이너인지 확인
+        local isOriginItemFluid = itemData:getName():contains("Empty") or itemData:getName():contains("Bottle") -- 액체 컨테이너인지 확인
 
         for i = 1, #items do
-            if (originItem:getDisplayName() ~= items[i]:getDisplayName()) then -- 아이템의 이름이 다른 경우
+            if (itemData:getDisplayName() ~= items[i]:getDisplayName()) then -- 아이템의 이름이 다른 경우
                 if (isOriginItemFluid and items[i]:getType():contains("Empty") or items[i]:getType():contains("Bottle")) then
                     -- 아이템의 이름이 다르지만 액체 컨테이너인 경우
                     skipYStackItems = true
@@ -41,15 +64,11 @@ function useSplitItems.contextMenu(player, context, items) -- 컨텍스트 메�
         end
 
         xStackItems = items
-    elseif (#items == 1 and instanceof(items[1], "InventoryItem")) then -- 선택한 아이템의 타입이 한 개 이면서 컨테이너 내에 스택되지 않은 아이템을 선택한 경우
-        itemData = items[1] -- 첫 번째 아이템을 기준으로 처리
-
-        if (itemData:getContainer():getAllType(itemData:getType()):size() == 1) then -- 컨테이너 내에 스택되지 않은 아이템이 1개인 경우
-            return
-        end
     else
         return
     end
+
+    -- 데이터 가공
 
     local yStackItems = {}
     local rawStackItems = itemData:getContainer():getAllType(itemData:getType())
@@ -82,7 +101,7 @@ function useSplitItems.contextMenu(player, context, items) -- 컨텍스트 메�
         stackItems = xStackItems
     end
 
-    context:addOption(getText("ContextMenu_SplitItems"), player, useSplitItems.createSplitItemsUI, stackItems)
+    context:addOption(getText("ContextMenu_SplitItems"), player, useSplitItems.createSplitItemsUI, stackItems, selectedContainer)
 end
 
 function useSplitItems.dragNDropSplit() -- 드래그 앤 드롭으로 아이템을 나누기

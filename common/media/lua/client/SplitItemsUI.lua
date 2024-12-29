@@ -12,10 +12,10 @@ function useSplitItemsUI.getContainers(character) -- ISIventoryPaneContextMenu.l
 end
 
 function useSplitItemsUI.addComboBoxOption(self) -- ComboBox에 옵션 추가
-    self.comboBox:addOption(getText("UI_SplitItems_Select_Inventory"))
+    self.comboBox:addOption(getText("UI_SplitItems_Select_Container"))
 
     self.containers = {}
-    tempContainer = {}
+    local tempContainer = {}
 
     local containers = useSplitItemsUI.getContainers(self.player) -- 데이터 가공
     for _, v in ipairs(containers) do
@@ -79,6 +79,7 @@ function useSplitItemsUI:new(x, y, width, height, player, items, container --[[=
     o.lastSquare = player:getCurrentSquare()
     o.itemCount = #items
     o.container = container
+    o.loopOldContainerCount = #getPlayerLoot(player:getPlayerNum()).inventoryPane.inventoryPage.backpacks
 
     return o
 end
@@ -196,9 +197,13 @@ function ISTextEntryBox:onCommandEntered() -- 텍스트 박스에 입력후 엔�
     end
 end
 
-function useSplitItemsUI:update() -- 플레이어가 움직이면 ComboBox 업데이트
+function useSplitItemsUI:update() -- 플레이어가 움직이거나 외부 컨테이너의 개수가 변할 때 ComboBox 업데이트
     ISCollapsableWindow.update(self)
-    if (self:getIsVisible() and self.player:getCurrentSquare() ~= self.lastSquare) then
+    local loopContainerCount = #getPlayerLoot(self.player:getPlayerNum()).inventoryPane.inventoryPage.backpacks
+
+    if (self:getIsVisible() and (self.player:getCurrentSquare() ~= self.lastSquare or self.loopOldContainerCount ~= loopContainerCount)) then
+        --print("Update ComboBox")
+        self.lastContainerCount = loopContainerCount
         self.lastSquare = self.player:getCurrentSquare()
         self.comboBox:clear()
         useSplitItemsUI.addComboBoxOption(self)
