@@ -24,9 +24,7 @@ function useSplitItems.contextMenu(player, context, items) -- 컨텍스트 메�
         if (not instanceof(items[1], "InventoryItem")) then
             itemData = items[1].items[1] -- 첫 번째 아이템을 기준으로 처리
 
-            local originItem = getScriptManager():FindItem(itemData:getType()) -- 아이템의 이름을 가져옴
-
-            if (originItem:getName():contains("Empty") or originItem:getName():contains("Bottle")) then -- 액체 컨테이너인 경우
+            if (itemData:getName():contains("Empty") or itemData:getName():contains("Bottle")) then -- 액체 컨테이너인 경우
                 skipYStackItems = true
             end
 
@@ -52,11 +50,10 @@ function useSplitItems.contextMenu(player, context, items) -- 컨텍스트 메�
 
         itemData = items[1] -- 첫 번째 아이템을 기준으로 처리
 
-        local originItem = getScriptManager():FindItem(itemData:getType()) -- 아이템의 이름을 가져옴
-        local isOriginItemFluid = originItem:getName():contains("Empty") or originItem:getName():contains("Bottle") -- 액체 컨테이너인지 확인
+        local isOriginItemFluid = itemData:getName():contains("Empty") or itemData:getName():contains("Bottle") -- 액체 컨테이너인지 확인
 
         for i = 1, #items do
-            if (originItem:getDisplayName() ~= items[i]:getDisplayName()) then -- 아이템의 이름이 다른 경우
+            if (itemData:getDisplayName() ~= items[i]:getDisplayName()) then -- 아이템의 이름이 다른 경우
                 if (isOriginItemFluid and items[i]:getType():contains("Empty") or items[i]:getType():contains("Bottle")) then
                     -- 아이템의 이름이 다르지만 액체 컨테이너인 경우
                     skipYStackItems = true
